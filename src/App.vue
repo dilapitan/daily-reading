@@ -2,7 +2,9 @@
   <v-app>
     <br /><br />
     <v-main>
-      <Home />
+      <v-container>
+        <Home />
+      </v-container>
     </v-main>
   </v-app>
 </template>
