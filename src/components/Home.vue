@@ -36,7 +36,9 @@
           @click="calculate()"
           >Calculate</v-btn
         >
-        <v-btn color="primary" @click="reset()">Reset</v-btn>
+        <v-btn :disabled="!done" color="primary" class="mr-5" @click="reset()"
+          >Reset</v-btn
+        >
       </v-col>
     </v-row>
 
