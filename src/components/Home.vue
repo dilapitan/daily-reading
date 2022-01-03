@@ -34,11 +34,50 @@
           color="primary"
           class="mr-5"
           @click="calculate()"
-          >Calculate</v-btn
         >
-        <v-btn :disabled="!done" color="primary" class="mr-5" @click="reset()"
-          >Reset</v-btn
-        >
+          Calculate
+        </v-btn>
+        <v-btn :disabled="!done" color="primary" class="mr-10" @click="reset()">
+          Reset
+        </v-btn>
+
+        <v-dialog width="500">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-if="$vuetify.breakpoint.name === 'xs'"
+              color="primary"
+              class="ma-2 white--text"
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon>mdi-cog</v-icon>
+            </v-btn>
+            <v-btn
+              v-else
+              color="primary"
+              class="ma-2 white--text"
+              v-bind="attrs"
+              v-on="on"
+            >
+              Configure
+              <v-icon right> mdi-cog</v-icon>
+            </v-btn>
+          </template>
+
+          <v-card>
+            <v-card-title> Adjust your desired session </v-card-title>
+            <v-card-text>Here</v-card-text>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="dialog = false"> Set </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-col>
     </v-row>
 
