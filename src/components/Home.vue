@@ -68,11 +68,13 @@
 
           <v-card>
             <v-card-title>Adjust your Desired Sessions:</v-card-title>
+
             <v-card-text>
               <v-chip-group
                 v-model="selectedSessions"
                 multiple
                 mandatory
+                column
                 active-class="primary"
               >
                 <v-chip v-for="(schedule, i) in defaultSchedules" :key="i">
