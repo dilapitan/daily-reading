@@ -41,7 +41,7 @@
           Reset
         </v-btn>
 
-        <v-dialog width="500">
+        <v-dialog v-model="dialog" width="500">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-if="$vuetify.breakpoint.name === 'xs'"
@@ -67,14 +67,26 @@
           </template>
 
           <v-card>
-            <v-card-title> Adjust your desired session </v-card-title>
-            <v-card-text>Here</v-card-text>
+            <v-card-title>Adjust your Desired Sessions:</v-card-title>
+            <v-card-text>
+              <v-chip-group
+                v-model="selectedSessions"
+                multiple
+                mandatory
+                active-class="primary"
+              >
+                <v-chip v-for="(schedule, i) in defaultSchedules" :key="i">
+                  {{ schedule.time }}
+                </v-chip>
+              </v-chip-group>
+            </v-card-text>
 
             <v-divider></v-divider>
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" text @click="dialog = false"> Set </v-btn>
+              <v-btn color="grey" text @click="dialog = false">Cancel</v-btn>
+              <v-btn color="primary" @click="adjustSchedule()">Set</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -93,7 +105,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(schedule, i) in schedules" :key="i">
+              <tr v-for="(schedule, i) in finalSchedules" :key="i">
                 <td class="text-right text-overline">{{ schedule.time }}:</td>
                 <td>{{ schedule.startPage }}</td>
                 <td>{{ schedule.endPage }}</td>
@@ -123,87 +135,103 @@ export default {
   },
 
   computed: {
-    schedules() {
-      return [
-        {
-          time: 'Morning',
-          flag: this.morningSchedule,
-          startPage: 0,
-          endPage: 0,
-          done: false
-        },
-        {
-          time: 'Lunch',
-          flag: this.lunchSchedule,
-          startPage: 0,
-          endPage: 0,
-          done: false
-        },
-        {
-          time: 'Afternoon',
-          flag: this.afternoonSchedule,
-          startPage: 0,
-          endPage: 0,
-          done: false
-        },
-        {
-          time: 'Evening',
-          flag: this.eveningSchedule,
-          startPage: 0,
-          endPage: 0,
-          done: false
-        },
-        {
-          time: 'Night',
-          flag: this.nightSchedule,
-          startPage: 0,
-          endPage: 0,
-          done: false
-        }
-      ]
-    },
-
     valid: function () {
       return !!(this.inputPagePerSession && this.inputStartPage)
     }
   },
 
   data: () => ({
+    dialog: false,
     done: false,
     inputStartPage: null,
     inputPagePerSession: null,
-    morningSchedule: true,
-    lunchSchedule: true,
-    afternoonSchedule: true,
-    eveningSchedule: true,
-    nightSchedule: true
+    selectedSessions: [0, 1, 2, 3, 4],
+    adjustedSchedules: [],
+    defaultSchedules: [
+      {
+        index: 0,
+        time: 'Morning',
+        startPage: 0,
+        endPage: 0,
+        done: false
+      },
+      {
+        index: 1,
+        time: 'Lunch',
+        startPage: 0,
+        endPage: 0,
+        done: false
+      },
+      {
+        index: 2,
+        time: 'Afternoon',
+        startPage: 0,
+        endPage: 0,
+        done: false
+      },
+      {
+        index: 3,
+        time: 'Evening',
+        startPage: 0,
+        endPage: 0,
+        done: false
+      },
+      {
+        index: 4,
+        time: 'Night',
+        startPage: 0,
+        endPage: 0,
+        done: false
+      }
+    ]
   }),
 
   methods: {
+    adjustSchedule: function () {
+      const temp = [...this.defaultSchedules]
+      const adjusted = temp.filter((adjustedSchedule) => {
+        if (this.selectedSessions.includes(adjustedSchedule.index)) {
+          return adjustedSchedule
+        }
+      })
+
+      this.adjustedSchedules = [...adjusted]
+      this.dialog = false
+      this.inputStartPage = null
+      this.inputPagePerSession = null
+      this.done = false
+    },
+
     calculate: function () {
       this.done = false
 
+      // This is for using the proper array if there was an adjustment or none
+      let temp = []
+      if (this.adjustedSchedules.length) temp = [...this.adjustedSchedules]
+      else temp = [...this.defaultSchedules]
+
       // Set the first sesh
-      this.schedules[0].startPage = parseInt(this.inputStartPage)
-      this.schedules[0].endPage =
-        this.schedules[0].startPage + parseInt(this.inputPagePerSession) - 1
+      temp[0].startPage = parseInt(this.inputStartPage)
+      temp[0].endPage =
+        temp[0].startPage + parseInt(this.inputPagePerSession) - 1
 
       // Based on the first sesh, continue the loop
-      for (let i = 1; i < this.schedules.length; i++) {
-        this.schedules[i].startPage = this.schedules[i - 1].endPage + 1
+      for (let i = 1; i < temp.length; i++) {
+        temp[i].startPage = temp[i - 1].endPage + 1
 
-        this.schedules[i].endPage =
-          parseInt(this.schedules[i].startPage) +
-          parseInt(this.inputPagePerSession) -
-          1
+        temp[i].endPage =
+          parseInt(temp[i].startPage) + parseInt(this.inputPagePerSession) - 1
       }
 
+      this.finalSchedules = [...temp]
       this.done = true
     },
 
     reset: function () {
       this.inputStartPage = null
       this.inputPagePerSession = null
+      this.adjustedSchedules = []
+      this.selectedSessions = [0, 1, 2, 3, 4]
       this.done = false
     }
   }
